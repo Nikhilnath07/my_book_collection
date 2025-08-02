@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📚 My Book Collection</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>📚 My Book Collection</h1>
+
+      <!-- Add Book Button -->
+      <button class="toggle-add" onclick="toggleAddForm()">
+        <strong> Add Book</strong>
+      </button>
+
+      <!-- Add Book Form (Initially Hidden) -->
+      <form
+        id="add-book-form"
+        class="add-form hidden"
+        action="/add"
+        method="POST"
+      >
+        <input type="text" name="title" placeholder="Book title *" required />
+        <input type="text" name="author" placeholder="Author (optional)" />
+        <input
+          type="number"
+          name="rating"
+          min="1"
+          max="10"
+          placeholder="Rating (1-10)"
+          required
+        />
+        <input type="text" name="cover_id" placeholder="Cover ID (optional)" />
+        <input type="date" name="date_read" />
+        <textarea name="notes" placeholder="Notes (optional)"></textarea>
+        <button type="submit">✅ Add</button>
+      </form>
+
+      <!-- Book List -->
+      <div class="book-list">
+        <% books.forEach(book => { %>
+        <div class="book-card">
+          <div class="book-cover">
+            <% if (book.cover_id) { %>
+            <img
+              src="https://covers.openlibrary.org/b/id/<%= book.cover_id %>-M.jpg"
+              alt="Cover for <%= book.title %>"
+            />
+            <% } else { %>
+            <div class="no-cover">No Cover</div>
+            <% } %>
+          </div>
+          <div class="book-info">
+            <h2><%= book.title %></h2>
+            <p><strong>Author:</strong> <%= book.author || "Unknown" %></p>
+            <p><strong>Rating:</strong> <%= book.rating %>/10</p>
+            <% if (book.date_read) { %>
+            <p>
+              <strong>Read on:</strong> <%=
+              book.date_read.toISOString().split("T")[0] %>
+            </p>
+            <% } %> <% if (book.notes) { %>
+            <p><strong>Notes:</strong> <%= book.notes %></p>
+            <% } %>
+
+            <!-- Toggle Update Button -->
+            <button
+              class="toggle-update"
+              onclick="toggleUpdateForm(<%= book.id %>)"
+            >
+              <strong> Update</strong>
+            </button>
+
+            <!-- Update Form (Hidden by Default) -->
+            <form
+              id="update-form-<%= book.id %>"
+              class="update-form hidden"
+              method="POST"
+              action="/update"
+            >
+              <input type="hidden" name="id" value="<%= book.id %>" />
+              <input
+                type="text"
+                name="title"
+                value="<%= book.title %>"
+                required
+              />
+              <input type="text" name="author" value="<%= book.author %>" />
+              <input
+                type="number"
+                name="rating"
+                min="1"
+                max="10"
+                value="<%= book.rating %>"
+                required
+              />
+              <input
+                type="date"
+                name="date_read"
+                value="<%= book.date_read ? book.date_read.toISOString().split('T')[0] : '' %>"
+              />
+              <textarea name="notes"><%= book.notes || '' %></textarea>
+              <button type="submit"><strong> Save</strong></button>
+            </form>
+            <!-- Delete Form -->
+            <form class="delete-form" method="POST" action="/delete">
+              <input type="hidden" name="id" value="<%= book.id %>" />
+              <button type="submit"><strong>Delete</strong></button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+    <script>
+      function toggleAddForm() {
+        const form = document.getElementById("add-book-form");
+        form.classList.remove("hidden");
+      }
+      function toggleUpdateForm(id) {
+        const form = document.getElementById(`update-form-${id}`);
+        if (form.classList.contains("hidden")) {
+          form.classList.remove("hidden");
+        } else {
+          form.classList.add("hidden");
+        }
+      }
+    </script>
+  </body>
+</html>
